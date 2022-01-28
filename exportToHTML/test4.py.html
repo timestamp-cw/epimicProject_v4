@@ -1,0 +1,79 @@
+<html>
+<head>
+<title>test4.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #808080;}
+.s3 { color: #6a8759;}
+.s4 { color: #6897bb;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+test4.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">pandas</span>
+<span class="s0">from </span><span class="s1">pyecharts </span><span class="s0">import </span><span class="s1">options </span><span class="s0">as </span><span class="s1">opts</span>
+<span class="s0">from </span><span class="s1">pyecharts.charts </span><span class="s0">import </span><span class="s1">Line</span>
+<span class="s0">from </span><span class="s1">Mysql </span><span class="s0">import </span><span class="s1">Mysql</span>
+<span class="s0">from </span><span class="s1">configparser </span><span class="s0">import </span><span class="s1">ConfigParser</span>
+
+<span class="s2"># url = &quot;https://disease.sh/v3/covid-19/historical/all?lastdays=all&quot;</span>
+<span class="s2"># data = pandas.read_json(url)</span>
+<span class="s1">data = pandas.read_json(</span><span class="s3">&quot;./data.json&quot;</span><span class="s1">)</span>
+<span class="s1">cases = data.get(</span><span class="s3">&quot;cases&quot;</span><span class="s1">).tolist()</span>
+<span class="s1">deaths = data.get(</span><span class="s3">&quot;deaths&quot;</span><span class="s1">).tolist()</span>
+<span class="s1">recovered = data.get(</span><span class="s3">&quot;recovered&quot;</span><span class="s1">).tolist()</span>
+<span class="s1">timestampList = data.index.values.tolist()</span>
+<span class="s1">dates = []</span>
+<span class="s0">for </span><span class="s1">timestamp </span><span class="s0">in </span><span class="s1">timestampList:</span>
+    <span class="s1">date = pandas.to_datetime(timestamp</span><span class="s0">, </span><span class="s1">format=</span><span class="s3">&quot;%Y-%m-%d&quot;</span><span class="s1">)</span>
+    <span class="s1">strDate = str(date)[</span><span class="s4">0</span><span class="s1">:</span><span class="s4">10</span><span class="s1">]</span>
+    <span class="s1">dates.append(strDate)</span>
+
+<span class="s1">strCases = [str(cc) </span><span class="s0">for </span><span class="s1">cc </span><span class="s0">in </span><span class="s1">cases]</span>
+<span class="s1">strDeaths = [str(dd) </span><span class="s0">for </span><span class="s1">dd </span><span class="s0">in </span><span class="s1">cases]</span>
+<span class="s1">strRecovered = [str(rr) </span><span class="s0">for </span><span class="s1">rr </span><span class="s0">in </span><span class="s1">recovered]</span>
+<span class="s1">strDates = [</span><span class="s3">&quot;'&quot;</span><span class="s1">+zz+</span><span class="s3">&quot;'&quot; </span><span class="s0">for </span><span class="s1">zz </span><span class="s0">in </span><span class="s1">dates]</span>
+<span class="s2"># print(strDates)</span>
+
+<span class="s1">result = [list(z) </span><span class="s0">for </span><span class="s1">z </span><span class="s0">in </span><span class="s1">zip(strDates</span><span class="s0">,</span><span class="s1">strCases</span><span class="s0">,</span><span class="s1">strDeaths</span><span class="s0">,</span><span class="s1">strRecovered)]</span>
+
+<span class="s1">cfg = ConfigParser()</span>
+<span class="s1">cfg.read(</span><span class="s3">&quot;./config.cfg&quot;</span><span class="s1">)</span>
+<span class="s1">host = cfg.get(</span><span class="s3">'Mysql'</span><span class="s0">, </span><span class="s3">'host'</span><span class="s1">)</span>
+<span class="s1">user = cfg.get(</span><span class="s3">'Mysql'</span><span class="s0">, </span><span class="s3">&quot;user&quot;</span><span class="s1">)</span>
+<span class="s1">password = cfg.get(</span><span class="s3">'Mysql'</span><span class="s0">, </span><span class="s3">&quot;password&quot;</span><span class="s1">)</span>
+<span class="s1">database = cfg.get(</span><span class="s3">'Mysql'</span><span class="s0">, </span><span class="s3">&quot;database&quot;</span><span class="s1">)</span>
+
+<span class="s1">mysql = Mysql(</span>
+    <span class="s1">host=host</span><span class="s0">,</span>
+    <span class="s1">user=user</span><span class="s0">,</span>
+    <span class="s1">password=password</span><span class="s0">,</span>
+    <span class="s1">database=database</span>
+<span class="s1">)</span>
+<span class="s1">tableName = </span><span class="s3">&quot;earthEpidmicTable&quot;</span>
+<span class="s1">keys = [</span><span class="s3">&quot;date&quot;</span><span class="s0">,</span><span class="s3">&quot;cases&quot;</span><span class="s0">,</span><span class="s3">&quot;deaths&quot;</span><span class="s0">,</span><span class="s3">&quot;recovered&quot;</span><span class="s1">]</span>
+<span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">result:</span>
+    <span class="s1">mysql.Insert(tableName</span><span class="s0">,</span><span class="s1">keys</span><span class="s0">,</span><span class="s1">i)</span>
+
+<span class="s1">mysql.Query(tableName)</span>
+
+
+
+<span class="s2"># line = (</span>
+<span class="s2">#     Line()</span>
+<span class="s2">#         .add_xaxis(dates)</span>
+<span class="s2">#         .add_yaxis(&quot;cases&quot;, cases)</span>
+<span class="s2">#         .add_yaxis(&quot;deaths&quot;, deaths)</span>
+<span class="s2">#         .add_yaxis(&quot;recovered&quot;, recovered)</span>
+<span class="s2">#         .set_global_opts(title_opts=opts.TitleOpts(&quot;2020年到2022年全球疫情折线图&quot;))</span>
+<span class="s2"># )</span>
+<span class="s2"># line.render(&quot;2020年到2022年全球疫情折线图2.html&quot;)</span>
+<span class="s2"># print(&quot;display successful&quot;)</span></pre>
+</body>
+</html>

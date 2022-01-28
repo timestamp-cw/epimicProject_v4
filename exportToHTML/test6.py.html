@@ -1,0 +1,63 @@
+<html>
+<head>
+<title>test6.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+.s3 { color: #808080;}
+.s4 { color: #6897bb;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+test6.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">json</span>
+<span class="s0">import </span><span class="s1">pandas</span>
+<span class="s0">from </span><span class="s1">pyecharts.charts </span><span class="s0">import </span><span class="s1">Map</span>
+<span class="s0">from </span><span class="s1">pyecharts </span><span class="s0">import </span><span class="s1">options </span><span class="s0">as </span><span class="s1">opts</span>
+<span class="s0">from </span><span class="s1">urllib </span><span class="s0">import </span><span class="s1">request</span>
+
+<span class="s1">url =</span><span class="s2">&quot;https://api.inews.qq.com/newsqa/v1/query/inner/publish/modules/list?modules=chinaDayList,chinaDayAddList,nowConfirmStatis,provinceCompare&quot;</span>
+<span class="s3"># with open(&quot;list.json&quot;, &quot;r&quot;, encoding=&quot;utf8&quot;) as fp:</span>
+<span class="s3">#     data = json.loads(fp.read())</span>
+<span class="s1">resp = request.urlopen(url)</span>
+<span class="s1">data = json.loads(resp.read().decode(</span><span class="s2">&quot;utf8&quot;</span><span class="s1">))</span>
+<span class="s1">chinaDayAddList = data[</span><span class="s2">'data'</span><span class="s1">][</span><span class="s2">'chinaDayAddList'</span><span class="s1">]</span>
+<span class="s1">chinaDayList = data[</span><span class="s2">'data'</span><span class="s1">][</span><span class="s2">'chinaDayList'</span><span class="s1">]</span>
+<span class="s1">nowConfirmStatis = data[</span><span class="s2">'data'</span><span class="s1">][</span><span class="s2">'nowConfirmStatis'</span><span class="s1">]</span>
+<span class="s1">provinceCompare = data[</span><span class="s2">'data'</span><span class="s1">][</span><span class="s2">'provinceCompare'</span><span class="s1">]</span>
+<span class="s1">xx = pandas.DataFrame(chinaDayAddList)</span>
+<span class="s1">yy = pandas.DataFrame(chinaDayList)</span>
+<span class="s3"># zz = pandas.DataFrame(nowConfirmStatis)</span>
+<span class="s1">uu = pandas.DataFrame(provinceCompare)</span>
+<span class="s1">keysList = uu.keys().tolist()</span>
+<span class="s1">nowConfirm = uu.loc[</span><span class="s2">&quot;nowConfirm&quot;</span><span class="s1">]</span>
+<span class="s1">confirmAdd = uu.loc[</span><span class="s2">&quot;confirmAdd&quot;</span><span class="s1">]</span>
+<span class="s1">dead = uu.loc[</span><span class="s2">&quot;dead&quot;</span><span class="s1">]</span>
+<span class="s1">heal = uu.loc[</span><span class="s2">&quot;heal&quot;</span><span class="s1">]</span>
+<span class="s1">zero = uu.loc[</span><span class="s2">&quot;zero&quot;</span><span class="s1">]</span>
+<span class="s1">print(uu)</span>
+<span class="s1">valueList = nowConfirm.values.tolist()</span>
+<span class="s1">valueList2 = confirmAdd.values.tolist()</span>
+<span class="s1">valueList3 = dead.values.tolist()</span>
+<span class="s1">valueList4 = heal.values.tolist()</span>
+<span class="s1">valueList5 = zero.values.tolist()</span>
+<span class="s1">map = (</span>
+    <span class="s1">Map()</span>
+    <span class="s1">.add(</span><span class="s2">&quot;nowConfirm&quot;</span><span class="s0">, </span><span class="s1">[list(z) </span><span class="s0">for </span><span class="s1">z </span><span class="s0">in </span><span class="s1">zip(keysList</span><span class="s0">, </span><span class="s1">valueList)]</span><span class="s0">, </span><span class="s2">&quot;china&quot;</span><span class="s1">)</span>
+    <span class="s1">.add(</span><span class="s2">&quot;confirmAdd&quot;</span><span class="s0">, </span><span class="s1">[list(z) </span><span class="s0">for </span><span class="s1">z </span><span class="s0">in </span><span class="s1">zip(keysList</span><span class="s0">, </span><span class="s1">valueList)]</span><span class="s0">, </span><span class="s2">&quot;china&quot;</span><span class="s1">)</span>
+    <span class="s1">.add(</span><span class="s2">&quot;head&quot;</span><span class="s0">, </span><span class="s1">[list(z) </span><span class="s0">for </span><span class="s1">z </span><span class="s0">in </span><span class="s1">zip(keysList</span><span class="s0">, </span><span class="s1">valueList)]</span><span class="s0">, </span><span class="s2">&quot;china&quot;</span><span class="s1">)</span>
+    <span class="s1">.add(</span><span class="s2">&quot;heal&quot;</span><span class="s0">, </span><span class="s1">[list(z) </span><span class="s0">for </span><span class="s1">z </span><span class="s0">in </span><span class="s1">zip(keysList</span><span class="s0">, </span><span class="s1">valueList)]</span><span class="s0">, </span><span class="s2">&quot;china&quot;</span><span class="s1">)</span>
+    <span class="s1">.add(</span><span class="s2">&quot;zero&quot;</span><span class="s0">, </span><span class="s1">[list(z) </span><span class="s0">for </span><span class="s1">z </span><span class="s0">in </span><span class="s1">zip(keysList</span><span class="s0">, </span><span class="s1">valueList)]</span><span class="s0">, </span><span class="s2">&quot;china&quot;</span><span class="s1">)</span>
+    <span class="s1">.set_global_opts(</span>
+        <span class="s1">title_opts=opts.TitleOpts(title=</span><span class="s2">&quot;中国疫情地图&quot;</span><span class="s1">)</span><span class="s0">,</span>
+        <span class="s1">visualmap_opts=opts.VisualMapOpts(max_=</span><span class="s4">550</span><span class="s0">, </span><span class="s1">split_number=</span><span class="s4">10</span><span class="s0">, </span><span class="s1">is_piecewise=</span><span class="s0">False</span><span class="s1">))</span>
+<span class="s1">)</span>
+<span class="s1">map.render(</span><span class="s2">&quot;中国疫情地图&quot;</span><span class="s1">)</span></pre>
+</body>
+</html>

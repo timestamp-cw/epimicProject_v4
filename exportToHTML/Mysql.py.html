@@ -1,0 +1,131 @@
+<html>
+<head>
+<title>Mysql.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6897bb;}
+.s3 { color: #6a8759;}
+.s4 { color: #808080;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Mysql.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">pymysql</span>
+<span class="s0">from </span><span class="s1">pymysql </span><span class="s0">import </span><span class="s1">MySQLError</span>
+
+
+<span class="s0">class </span><span class="s1">Mysql:</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">host</span><span class="s0">, </span><span class="s1">user</span><span class="s0">, </span><span class="s1">password</span><span class="s0">, </span><span class="s1">database):</span>
+        <span class="s1">self.host = host</span>
+        <span class="s1">self.user = user</span>
+        <span class="s1">self.password = password</span>
+        <span class="s1">self.database = database</span>
+        <span class="s1">self.flag = </span><span class="s2">0</span>
+
+    <span class="s0">def </span><span class="s1">Connect(self):</span>
+        <span class="s0">try</span><span class="s1">:</span>
+            <span class="s1">db = pymysql.connect(</span>
+                <span class="s1">host=</span><span class="s3">&quot;localhost&quot;</span><span class="s0">,</span>
+                <span class="s1">user=</span><span class="s3">&quot;wangchao&quot;</span><span class="s0">,</span>
+                <span class="s1">password=</span><span class="s3">&quot;wangchao&quot;</span><span class="s0">,</span>
+                <span class="s1">database=</span><span class="s3">&quot;test&quot;</span>
+            <span class="s1">)</span>
+        <span class="s0">except </span><span class="s1">MySQLError:</span>
+            <span class="s1">print(</span><span class="s3">&quot;数据库建立连接失败&quot;</span><span class="s1">)</span>
+            <span class="s1">self.flag = </span><span class="s2">1</span>
+            <span class="s1">db = </span><span class="s2">0</span>
+        <span class="s0">return </span><span class="s1">db</span>
+
+    <span class="s0">def </span><span class="s1">Query(self</span><span class="s0">, </span><span class="s1">tableName):</span>
+        <span class="s1">db = self.Connect()</span>
+        <span class="s1">cursor = db.cursor()</span>
+        <span class="s4"># tableName = &quot;report&quot;</span>
+        <span class="s1">querySql = </span><span class="s3">&quot;select * from {0}&quot;</span><span class="s1">.format(tableName)</span>
+        <span class="s0">try</span><span class="s1">:</span>
+            <span class="s1">cursor.execute(querySql)</span>
+            <span class="s1">res = cursor.fetchall()</span>
+            <span class="s0">for </span><span class="s1">index1</span><span class="s0">, </span><span class="s1">row </span><span class="s0">in </span><span class="s1">enumerate(res):</span>
+                <span class="s0">for </span><span class="s1">index2</span><span class="s0">, </span><span class="s1">col </span><span class="s0">in </span><span class="s1">enumerate(row):</span>
+                    <span class="s1">print(str(index1 + </span><span class="s2">1</span><span class="s1">) + </span><span class="s3">&quot;--&quot; </span><span class="s1">+ str(index2 + </span><span class="s2">1</span><span class="s1">) + </span><span class="s3">&quot;--&quot; </span><span class="s1">+ str(col))</span>
+            <span class="s1">db.close()</span>
+        <span class="s0">except </span><span class="s1">MySQLError:</span>
+            <span class="s1">db.rollback()</span>
+            <span class="s1">print(</span><span class="s3">&quot;查询执行失败&quot;</span><span class="s1">)</span>
+            <span class="s1">self.flag = </span><span class="s2">1</span>
+
+    <span class="s0">def </span><span class="s1">Insert(self</span><span class="s0">, </span><span class="s1">tableName</span><span class="s0">, </span><span class="s1">keys</span><span class="s0">,</span><span class="s1">results):</span>
+        <span class="s1">db = self.Connect()</span>
+        <span class="s0">if not </span><span class="s1">db:</span>
+            <span class="s1">self.flag = </span><span class="s2">1</span>
+            <span class="s4"># print(&quot;shibai &quot;)</span>
+            <span class="s0">return </span><span class="s2">0</span>
+        <span class="s1">cursor = db.cursor()</span>
+        <span class="s4"># 构造insertSql语句</span>
+        <span class="s4"># tableName = &quot;report&quot;</span>
+        <span class="s4"># keys = [&quot;date&quot;, &quot;content&quot;]</span>
+        <span class="s4"># results = [&quot;'2021-01-01'&quot;, &quot;'王超是个猪'&quot;]</span>
+        <span class="s1">strKeys = </span><span class="s3">&quot;,&quot;</span><span class="s1">.join(keys)</span>
+        <span class="s4"># print(results)</span>
+        <span class="s1">strResults = </span><span class="s3">&quot;,&quot;</span><span class="s1">.join(results)</span>
+        <span class="s4"># print(strResults)</span>
+        <span class="s1">insertSql = </span><span class="s3">&quot;insert into {0}({1}) values({2})&quot;</span><span class="s1">.format(tableName</span><span class="s0">, </span><span class="s1">strKeys</span><span class="s0">, </span><span class="s1">strResults)</span>
+
+        <span class="s4"># 插入</span>
+        <span class="s0">try</span><span class="s1">:</span>
+            <span class="s1">cursor.execute(insertSql)</span>
+            <span class="s1">db.commit()</span>
+            <span class="s1">db.close()</span>
+
+        <span class="s0">except </span><span class="s1">MySQLError:</span>
+            <span class="s1">db.rollback()</span>
+            <span class="s1">print(</span><span class="s3">&quot;插入失败&quot;</span><span class="s1">)</span>
+            <span class="s1">self.flag = </span><span class="s2">1</span>
+
+    <span class="s0">def </span><span class="s1">DropTable(self</span><span class="s0">,</span><span class="s1">tableName):</span>
+        <span class="s1">db = self.Connect()</span>
+        <span class="s1">cursor = db.cursor()</span>
+        <span class="s4"># tableName = &quot;report&quot;</span>
+        <span class="s1">dropSql = </span><span class="s3">&quot;drop table if exists {0}&quot;</span><span class="s1">.format(tableName)</span>
+        <span class="s0">try</span><span class="s1">:</span>
+            <span class="s1">cursor.execute(dropSql)</span>
+            <span class="s1">db.commit()</span>
+            <span class="s1">db.close()</span>
+        <span class="s0">except </span><span class="s1">MySQLError:</span>
+            <span class="s1">db.rollback()</span>
+            <span class="s1">print(</span><span class="s3">&quot;丢弃整张表失败&quot;</span><span class="s1">)</span>
+            <span class="s1">self.flag = </span><span class="s2">1</span>
+
+    <span class="s0">def </span><span class="s1">CreateTable(self</span><span class="s0">,</span><span class="s1">tableName</span><span class="s0">,</span><span class="s1">keys</span><span class="s0">,</span><span class="s1">types</span><span class="s0">,</span><span class="s1">nulls):</span>
+        <span class="s1">db = self.Connect()</span>
+        <span class="s1">cursor = db.cursor()</span>
+        <span class="s4"># tableName = &quot;report&quot;</span>
+        <span class="s4"># keys = [&quot;date&quot;, &quot;content&quot;]</span>
+        <span class="s4"># types = [&quot;varchar(255)&quot;, &quot;text&quot;]</span>
+        <span class="s4"># nulls = [&quot;not null&quot;, &quot;&quot;]</span>
+        <span class="s1">value = []</span>
+        <span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">0</span><span class="s0">, </span><span class="s1">len(keys)):</span>
+            <span class="s1">item = [keys[i]</span><span class="s0">, </span><span class="s1">types[i]</span><span class="s0">, </span><span class="s1">nulls[i]]</span>
+            <span class="s1">strItem = </span><span class="s3">&quot; &quot;</span><span class="s1">.join(item)</span>
+            <span class="s1">value.append(strItem)</span>
+        <span class="s1">strValue = </span><span class="s3">&quot;,&quot;</span><span class="s1">.join(value)</span>
+        <span class="s1">createSql = </span><span class="s3">&quot;create table {0}({1})&quot;</span><span class="s1">.format(tableName</span><span class="s0">, </span><span class="s1">strValue)</span>
+        <span class="s0">try</span><span class="s1">:</span>
+            <span class="s1">cursor.execute(createSql)</span>
+            <span class="s1">db.commit()</span>
+            <span class="s1">db.close()</span>
+        <span class="s0">except </span><span class="s1">MySQLError:</span>
+            <span class="s1">db.rollback()</span>
+            <span class="s1">print(</span><span class="s3">&quot;创建数据表失败&quot;</span><span class="s1">)</span>
+            <span class="s1">self.flag = </span><span class="s2">1</span>
+
+    <span class="s0">def </span><span class="s1">check_flag(self):</span>
+        <span class="s0">return </span><span class="s1">self.flag</span>
+</pre>
+</body>
+</html>

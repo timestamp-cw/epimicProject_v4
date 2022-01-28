@@ -1,0 +1,94 @@
+<html>
+<head>
+<title>crawl.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+.s3 { color: #6897bb;}
+.s4 { color: #808080;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+crawl.py</font>
+</center></td></tr></table>
+<pre><span class="s0">from </span><span class="s1">lxml </span><span class="s0">import </span><span class="s1">html</span>
+<span class="s0">from </span><span class="s1">queue </span><span class="s0">import </span><span class="s1">Queue</span>
+<span class="s0">from </span><span class="s1">time </span><span class="s0">import </span><span class="s1">sleep</span>
+<span class="s0">import </span><span class="s1">re</span>
+<span class="s0">from </span><span class="s1">Mysql </span><span class="s0">import </span><span class="s1">Mysql</span>
+<span class="s0">from </span><span class="s1">configparser </span><span class="s0">import </span><span class="s1">ConfigParser</span>
+<span class="s0">import </span><span class="s1">shutil</span>
+<span class="s0">import </span><span class="s1">os</span>
+<span class="s0">from </span><span class="s1">pymysql </span><span class="s0">import </span><span class="s1">MySQLError</span>
+
+
+<span class="s0">def </span><span class="s1">spider():</span>
+    <span class="s1">start_url = </span><span class="s2">&quot;http://www.gov.cn/xinwen/2022-01/05/content_5666479.htm&quot;</span>
+    <span class="s1">base_url = </span><span class="s2">&quot;http://www.gov.cn&quot;</span>
+    <span class="s1">queue1 = Queue(</span><span class="s3">10</span><span class="s1">)</span>
+    <span class="s1">queue1.put(start_url)</span>
+    <span class="s1">pattern1 = re.compile(</span><span class="s2">r&quot;\d+&quot;</span><span class="s1">)</span>
+    <span class="s1">count = </span><span class="s3">0</span>
+    <span class="s0">while not </span><span class="s1">queue1.empty():</span>
+        <span class="s1">url = queue1.get()</span>
+        <span class="s1">print(url)</span>
+        <span class="s1">sleep(</span><span class="s3">1</span><span class="s1">)</span>
+        <span class="s1">title_list = pattern1.findall(url)</span>
+        <span class="s1">filename = </span><span class="s2">&quot;-&quot;</span><span class="s1">.join(title_list)</span>
+        <span class="s1">htmlElem = html.parse(url</span><span class="s0">, </span><span class="s1">parser=html.HTMLParser())</span>
+        <span class="s1">text = htmlElem.xpath(</span><span class="s2">&quot;//div[@id='UCAP-CONTENT']//text()&quot;</span><span class="s1">)</span>
+        <span class="s1">result = </span><span class="s2">&quot;&quot;</span><span class="s1">.join(text).strip()</span>
+        <span class="s4"># 存储数据</span>
+        <span class="s1">store_data(filename</span><span class="s0">, </span><span class="s1">result)</span>
+        <span class="s4">#</span>
+        <span class="s1">link = htmlElem.xpath(</span><span class="s2">&quot;//ul[@class='list01']//a/@href&quot;</span><span class="s1">)[</span><span class="s3">0</span><span class="s1">]</span>
+        <span class="s1">new_url = base_url + link</span>
+        <span class="s1">queue1.put(new_url)</span>
+        <span class="s1">count += </span><span class="s3">1</span>
+        <span class="s0">if </span><span class="s1">count == </span><span class="s3">3</span><span class="s1">:</span>
+            <span class="s0">break</span>
+
+
+<span class="s0">def </span><span class="s1">store_data(title</span><span class="s0">, </span><span class="s1">text):</span>
+    <span class="s4"># 存储到数据库 report表</span>
+    <span class="s1">cfg = ConfigParser()</span>
+    <span class="s1">cfg.read(</span><span class="s2">&quot;./config.cfg&quot;</span><span class="s1">)</span>
+    <span class="s1">host = cfg.get(</span><span class="s2">'Mysql'</span><span class="s0">, </span><span class="s2">'host'</span><span class="s1">)</span>
+    <span class="s1">user = cfg.get(</span><span class="s2">'Mysql'</span><span class="s0">, </span><span class="s2">&quot;user&quot;</span><span class="s1">)</span>
+    <span class="s1">password = cfg.get(</span><span class="s2">'Mysql'</span><span class="s0">, </span><span class="s2">&quot;password&quot;</span><span class="s1">)</span>
+    <span class="s1">database = cfg.get(</span><span class="s2">'Mysql'</span><span class="s0">, </span><span class="s2">&quot;database&quot;</span><span class="s1">)</span>
+    <span class="s1">mysql = Mysql(</span>
+        <span class="s1">host=host</span><span class="s0">,</span>
+        <span class="s1">user=user</span><span class="s0">,</span>
+        <span class="s1">password=password</span><span class="s0">,</span>
+        <span class="s1">database=database</span>
+    <span class="s1">)</span>
+    <span class="s1">strTitle = </span><span class="s2">&quot;'&quot; </span><span class="s1">+ title + </span><span class="s2">&quot;'&quot;</span>
+    <span class="s1">strText = </span><span class="s2">&quot;'&quot; </span><span class="s1">+ text + </span><span class="s2">&quot;'&quot;</span>
+    <span class="s1">result = [strTitle</span><span class="s0">, </span><span class="s1">strText]</span>
+    <span class="s1">tableName = </span><span class="s2">&quot;report&quot;</span>
+    <span class="s1">keys = [</span><span class="s2">&quot;date&quot;</span><span class="s0">, </span><span class="s2">&quot;content&quot;</span><span class="s1">]</span>
+    <span class="s1">mysql.Insert(tableName</span><span class="s0">, </span><span class="s1">keys</span><span class="s0">,</span><span class="s1">result)</span>
+    <span class="s4"># mysql.Query(tableName)</span>
+    <span class="s1">exitflag = mysql.check_flag()</span>
+
+    <span class="s0">if </span><span class="s1">exitflag:</span>
+        <span class="s4"># 存储为TXT文本</span>
+        <span class="s0">if not </span><span class="s1">os.path.exists(</span><span class="s2">&quot;./store&quot;</span><span class="s1">):</span>
+            <span class="s1">os.mkdir(</span><span class="s2">&quot;./store&quot;</span><span class="s1">)</span>
+        <span class="s0">else</span><span class="s1">:</span>
+            <span class="s1">print(</span><span class="s2">&quot;os 文件夹存在&quot;</span><span class="s1">)</span>
+        <span class="s0">with </span><span class="s1">open(</span><span class="s2">&quot;./store/&quot; </span><span class="s1">+ title + </span><span class="s2">&quot;.txt&quot;</span><span class="s0">, </span><span class="s2">&quot;w&quot;</span><span class="s0">,</span><span class="s1">encoding=</span><span class="s2">&quot;utf8&quot;</span><span class="s1">) </span><span class="s0">as </span><span class="s1">fp:</span>
+            <span class="s1">fp.write(text)</span>
+        <span class="s4"># if os.path.exists(&quot;./store&quot;):</span>
+        <span class="s4">#     shutil.rmtree(&quot;./store&quot;)</span>
+        <span class="s4"># else:</span>
+        <span class="s4">#     print(&quot;shutil 文件夹不存在&quot;)</span>
+</pre>
+</body>
+</html>

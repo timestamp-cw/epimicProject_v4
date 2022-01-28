@@ -1,0 +1,48 @@
+<html>
+<head>
+<title>display.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+.s3 { color: #808080;}
+.s4 { color: #6897bb;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+display.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">pandas</span>
+<span class="s0">from </span><span class="s1">pyecharts </span><span class="s0">import </span><span class="s1">options </span><span class="s0">as </span><span class="s1">opts</span>
+<span class="s0">from </span><span class="s1">pyecharts.charts </span><span class="s0">import </span><span class="s1">Line</span>
+
+<span class="s0">def </span><span class="s1">show():</span>
+    <span class="s1">url = </span><span class="s2">&quot;https://disease.sh/v3/covid-19/historical/all?lastdays=all&quot;</span>
+    <span class="s1">data = pandas.read_json(url)</span>
+    <span class="s3"># data = pandas.read_json(&quot;./data.json&quot;)</span>
+    <span class="s1">cases = data.get(</span><span class="s2">&quot;cases&quot;</span><span class="s1">).tolist()</span>
+    <span class="s1">deaths = data.get(</span><span class="s2">&quot;deaths&quot;</span><span class="s1">).tolist()</span>
+    <span class="s1">recovered = data.get(</span><span class="s2">&quot;recovered&quot;</span><span class="s1">).tolist()</span>
+    <span class="s1">timestampList = data.index.values.tolist()</span>
+    <span class="s1">dates = []</span>
+    <span class="s0">for </span><span class="s1">timestamp </span><span class="s0">in </span><span class="s1">timestampList:</span>
+        <span class="s1">date = pandas.to_datetime(timestamp</span><span class="s0">, </span><span class="s1">format=</span><span class="s2">&quot;%Y-%m-%d&quot;</span><span class="s1">)</span>
+        <span class="s1">strDate = str(date)[</span><span class="s4">0</span><span class="s1">:</span><span class="s4">10</span><span class="s1">]</span>
+        <span class="s1">dates.append(strDate)</span>
+
+    <span class="s1">line = (</span>
+        <span class="s1">Line()</span>
+        <span class="s1">.add_xaxis(dates)</span>
+        <span class="s1">.add_yaxis(</span><span class="s2">&quot;cases&quot;</span><span class="s0">,</span><span class="s1">cases)</span>
+        <span class="s1">.add_yaxis(</span><span class="s2">&quot;deaths&quot;</span><span class="s0">,</span><span class="s1">deaths)</span>
+        <span class="s1">.add_yaxis(</span><span class="s2">&quot;recovered&quot;</span><span class="s0">,</span><span class="s1">recovered)</span>
+        <span class="s1">.set_global_opts(title_opts=opts.TitleOpts(</span><span class="s2">&quot;2020年到2022年全球疫情折线图&quot;</span><span class="s1">))</span>
+    <span class="s1">)</span>
+    <span class="s1">line.render(</span><span class="s2">&quot;2020年到2022年全球疫情折线图2.html&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;display successful&quot;</span><span class="s1">)</span></pre>
+</body>
+</html>
