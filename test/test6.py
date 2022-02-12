@@ -23,12 +23,15 @@ confirmAdd = uu.loc["confirmAdd"]
 dead = uu.loc["dead"]
 heal = uu.loc["heal"]
 zero = uu.loc["zero"]
-print(uu)
+print(xx)
 valueList = nowConfirm.values.tolist()
 valueList2 = confirmAdd.values.tolist()
 valueList3 = dead.values.tolist()
 valueList4 = heal.values.tolist()
 valueList5 = zero.values.tolist()
+print(keysList)
+print(valueList)
+
 map = (
     Map()
     .add("nowConfirm", [list(z) for z in zip(keysList, valueList)], "china")

@@ -1,12 +1,10 @@
 import pandas
-from pyecharts import options as opts
-from pyecharts.charts import Line
-from Mysql import Mysql
+from utils.mysql import Mysql
 from configparser import ConfigParser
 
 # url = "https://disease.sh/v3/covid-19/historical/all?lastdays=all"
 # data = pandas.read_json(url)
-data = pandas.read_json("./data.json")
+data = pandas.read_json("../files/data.json")
 cases = data.get("cases").tolist()
 deaths = data.get("deaths").tolist()
 recovered = data.get("recovered").tolist()
