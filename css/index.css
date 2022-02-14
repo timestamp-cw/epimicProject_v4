@@ -1,0 +1,96 @@
+/* align */
+.center_text{
+    text-align: center;
+}
+.right_text{
+    text-align: right;
+}
+/* 首行缩进 */
+.indet_text{
+text-indent: 2em;
+}
+/* 鼠标样式 */
+.cursor{
+    cursor: url("../resourse/icons/002.ico"),auto;
+}
+/* width and height */
+.width_full{
+    width: 100%;
+}
+.width_half{
+    width: 50%;
+}
+.height_full{
+    height: 100%;
+}
+.width_auto{
+    width: auto;
+}
+.width_200{
+    width: 200px;
+}
+.height_400{
+    height: 400px;
+}
+.height_800{
+    height: 800px;
+}
+/* tag */
+iframe{
+    width: 100%;
+    height: 400px;
+}
+/* color */
+.red{
+    color: red;
+}
+.blue{
+    color: blue;
+}
+.yellow{
+    color: yellow;
+}
+.white{
+    color: white;
+}
+.black{
+    color: black;
+}
+/* test */
+a:hover{
+    color:black;
+}
+a:active{
+    color: yellow;
+}
+a:link{
+    color: teal;
+}
+a:visited{
+    color: tomato;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
